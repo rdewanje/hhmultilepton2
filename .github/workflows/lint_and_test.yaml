@@ -48,10 +48,16 @@ jobs:
           export CF_REPO_BASE="$PWD"
           export CF_SETUP_NAME="github_actions"
           export CF_SOFTWARE_BASE="$PWD/columnflow_venv/software"
-          
+          export CF_SKIP_SETUP="false"
+
           echo "Running full setup..."
-          #source "$CF_BASE/setup.sh" "" || true
+          
+          echo "=== Step 1: Run columnflow setup ==="
+          source "$CF_BASE/setup.sh" "" || true
+          
+          echo "=== Step 2: Run main setup ==="
           source setup.sh "githubtest"
+ 
           which micromamba
           micromamba --version 
 
