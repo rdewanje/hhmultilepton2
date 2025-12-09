@@ -42,6 +42,9 @@ jobs:
 
       - name: Install dependencies ☕️
         run: |
+          which micromamba || echo "micromamba not found"
+          micromamba --version || echo "Failed to get micromamba version"
+
           export CI="true"
           export GITHUB_ACTIONS="true"
           export CF_REMOTE_ENV="true"
@@ -51,6 +54,10 @@ jobs:
           export CF_SOFTWARE_BASE="$CF_REPO_BASE/columnflow_venv/software"
           export CF_SKIP_SETUP="false"
           export CF_REPO_BASE_ALIAS="MULTILEPTON_BASE"
+          export CF_LOCAL_ENV="true"
+
+          which micromamba || echo "micromamba not found"
+          micromamba --version || echo "Failed to get micromamba version"
 
           # Create micromamba.sh
           mkdir -p "$CF_SOFTWARE_BASE/conda/etc/profile.d"
