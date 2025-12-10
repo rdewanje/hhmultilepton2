@@ -10,12 +10,11 @@ import law
 import order as od
 
 from copy import deepcopy
-from collections import defaultdict, ChainMap
+from collections import defaultdict
 from columnflow.util import DotDict, try_int
 
 
 logger = law.logger.get_logger(__name__)
-
 
 
 def resolve_inheritance(styles: dict) -> dict:

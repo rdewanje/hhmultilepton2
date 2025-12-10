@@ -168,10 +168,10 @@ setup_multilepton() {
             correctionlib==2.7.0 \
             || return "$?"
         $CF_MAMBA_BASE clean --yes --all
-        fi 
+        fi
         cf_setup_post_install || return "$?"
     fi
-
+    
     # update the law config file to switch from mirrored to bare wlcg targets
     # as local mounts are typically not available remotely
     if ${CF_REMOTE_ENV}; then
