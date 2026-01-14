@@ -163,9 +163,10 @@ setup_multilepton() {
     #
     IS_CI=${CI:-false}
     [ -n "${GITHUB_ACTIONS}" ] && IS_CI=true
-    echo 'heloooooooooo' $IS_CI
-
-    if [[ "${CF_SKIP_SETUP}" == "true" ]]; then ## inverted because CI and columnflow dependency
+    
+    if [[ "${IS_CI}" == "true" ]]; then
+        echo "[setup] CF_SKIP_SETUP=true → skipping dependency installation"
+    else
         echo "[setup] Performing full environment setup"
         if ! ($CF_MAMBA_BASE env export | grep -q correctionlib); then
             echo correctionlib misisng, installing...
@@ -175,8 +176,6 @@ setup_multilepton() {
             $CF_MAMBA_BASE clean --yes --all
         fi
         cf_setup_post_install || return "$?"
-    else
-        echo "[setup] CF_SKIP_SETUP=true → skipping dependency installation"
     fi
     
     # update the law config file to switch from mirrored to bare wlcg targets
