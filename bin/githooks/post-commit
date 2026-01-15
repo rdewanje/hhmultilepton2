@@ -10,10 +10,11 @@ action() {
         >&2 echo "MULTILEPTON_BASE not setup, skip linting"
     elif [ "${MULTILEPTON_SKIP_POST_COMMIT}" != "1" ]; then
         bash "${MULTILEPTON_BASE}/tests/run_linting"
-        echo "post-commit linting ..."
-        echo -e "${RED}⚠️  Linting Issues Found${NC}"
-        echo "Please resolve the issues above (if there any!) before pushing to the repository."
-        echo ...
+        echo -e "${RED}⚠️  ===============================================================================${NC}"
+        echo -e "${RED} Post-commit linting ...${NC}"
+        echo -e "${RED} Linting Issues Found${NC}"
+        echo -e "${RED} Please resolve the issues above (if there any!) before pushing to the repository.${NC}"
+        echo -e "${RED}⚠️  ===============================================================================${NC}"
     fi
 
     # always end successfully
