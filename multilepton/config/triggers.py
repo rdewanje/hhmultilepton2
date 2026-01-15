@@ -79,12 +79,12 @@ trigger_bits = DotDict.wrap({
         "SingleTau": Bits(v14=512, v15="v14"),
         "SingleTauOrTauMet": Bits(v12=1024, v14="v12", v15="v14"),  # more general paths than SingleTau in v14
         "VBFDiTau": Bits(v14=1024, v15="v14"),
-        # "VBFpDoublePFTau_run2": Bits(v12=2048, v15="v14"),
-        # "VBFpDoublePFTau_run3": Bits(v12=4096, v15="v14"),  # warning: this trigger bit expects "ChargedIso" in the filter name, this does not correspond to our actual VBF filter name  # noqa
+        "VBFpDoublePFTau_run2": Bits(v12=2048),
+        "VBFpDoublePFTau_run3": Bits(v12=4096),  # warning: this trigger bit expects "ChargedIso" in the filter name, this does not correspond to our actual VBF filter name  # noqa
         "DiTau": Bits(v14=2048, v15="v14"),
-        "DiPFJetAndDiTau": Bits(v12=8192, v15="v14"),
+        "DiPFJetAndDiTau": Bits(v12=8192, v14="v12", v15="v14"),
         "DiTauAndPFJet": Bits(v12=16384, v14="v12", v15="v14"),
-        "DisplacedTau": Bits(v12=32768, v15="v14"),
+        "DisplacedTau": Bits(v12=32768, v14="v12", v15="v14"),
         "ETauDisplaced": Bits(v14=32768, v15="v14"),
         "MuTauDisplaced": Bits(v14=65536, v15="v14"),
         "DiTauDisplaced": Bits(v14=131072, v15="v14"),
@@ -95,11 +95,11 @@ trigger_bits = DotDict.wrap({
         "MonitoringDiTau": Bits(v14=8388608, v15="v14"),
         "VBFDoubleTauMonitoring": Bits(v14=33554432, v15="v14"),
         "OverlapFilter": Bits(v14=16777216, v15="v14"),
-        "RegionalPaths": Bits(v12=131072, v15="v14"),
-        "L1SeededPaths": Bits(v12=262144, v15="v14"),
-        "MatchL1HLT": Bits(v12=262144, v14=134217728, v15="v14"),  # for v12: alias for v12-v14 compatibility
-        "1Prong": Bits(v12=524288, v15="v14"),
-        "OneProng": Bits(v14=4194304, v15="v14"),  # just changed "1" to "One" for v14, still means different filters
+        "RegionalPaths": Bits(v12=2**17),
+        "L1SeededPaths": Bits(v12=2**18),
+        "MatchL1HLT": Bits(v12=262144, v14=2**27, v15="v14"),  # for v12: alias for v12-v14 compatibility
+        "1Prong": Bits(v12=2**19),
+        "OneProng": Bits(v14=2**22, v15="v14"),  # just changed "1" to "One" for v14, still means different filters
         "SinglePFTauFilter": Bits(v14=536870912, v15="v14"),
         "VBFSingleTau": Bits(v14=1073741824, v15="v14"),
     },
