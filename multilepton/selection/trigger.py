@@ -30,6 +30,22 @@ def trigger_selection(
     """
     HLT trigger path selection.
     """
+
+    # Trigger disabled
+    if getattr(self.config_inst.x, "disable_triggers", False):
+        n_events = len(events)
+
+        return events, SelectionResult(
+            steps={
+                # every event passes the trigger step
+                "trigger": ak.ones(n_events, dtype=bool),
+            },
+            aux={
+                # keep expected keys to avoid downstream failures
+                "trigger_data": [],
+            },
+        )
+
     any_fired = False
     trigger_data = []
     trigger_ids = []

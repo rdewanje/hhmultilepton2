@@ -25,9 +25,9 @@ trigger_bits = DotDict.wrap({
         "WPTightTrackIso": Bits(v12=2, v14="v12", v15="v14"),
         "WPLooseTrackIso": Bits(v12=4, v14="v12", v15="v14"),
         "OverlapFilterPFTau": Bits(v12=8, v14="v12", v15="v14"),
-        "DiElectron": Bits(v12=16, v15="v14"),
-        "DiElectronLeg1": Bits(v14=16, v15="v14"),
-        "DiElectronLeg2": Bits(v14=32, v15="v14"),
+        "DiElectron": Bits(v12=2**4, v14="v12", v15="v14"),
+        "DiElectronLeg1": Bits(v12=2**4, v14="v12", v15="v14"),
+        "DiElectronLeg2": Bits(v12=2**5, v14="v12", v15="v14"),
         "MuEle": Bits(v12=32, v14=64, v15="v14"),
         "EleTau": Bits(v12=64, v14=128, v15="v14"),
         "TripleElectron": Bits(v12=128, v14=256, v15="v14"),
@@ -58,29 +58,29 @@ trigger_bits = DotDict.wrap({
         "MuTauPNet": Bits(v14=8192, v15="v14"),
     },
     "tau": {  # general comment: lot of v14 paths contain PNet paths, not available in v12, e.g. OverlapFilterIsoEle
-        "LooseChargedIso": Bits(v12=1, v15="v14"),
+        "LooseChargedIso": Bits(v12=1),
         "Loose": Bits(v14=1, v15="v14"),
-        "MediumChargedIso": Bits(v12=2, v15="v14"),
+        "MediumChargedIso": Bits(v12=2),
         "Medium": Bits(v14=2, v15="v14"),
-        "TightChargedIso": Bits(v12=4, v15="v14"),
+        "TightChargedIso": Bits(v12=4),
         "Tight": Bits(v14=4, v15="v14"),
         "DeepTau": Bits(v12=8, v14="v12", v15="v14"),
         "PNet": Bits(v14=16, v15="v14"),
-        "TightOOSCPhotons": Bits(v12=16, v15="v14"),
+        "TightOOSCPhotons": Bits(v12=16, v14="v12", v15="v14"),
         "HPS": Bits(v12=32, v14=268435456, v15="v14"),
         "ChargedIso": Bits(v14=32, v15="v14"),
-        "ChargedIsoDiTau": Bits(v12=64, v15="v14"),
-        "Dxy": Bits(v14=64, v15="v14"),
+        "ChargedIsoDiTau": Bits(v12=2**5, v14="v12", v15="v14"),
+        "Dxy": Bits(v14=2**6, v15="v14"),
         "DeepTauDiTau": Bits(v12=128, v14=2048 + 8, v15="v14"),  # manually created bit combinations for v14
         "ETauFilter": Bits(v14=128, v15="v14"),
         "MuTauFilter": Bits(v14=256, v15="v14"),
         "OverlapFilterIsoEle": Bits(v12=256, v14=4096, v15="v14"),  # contains HPS in v14, not in v12
         "OverlapFilterIsoMu": Bits(v12=512, v14=8192, v15="v14"),  # contains HPS in v14, not in v12
         "SingleTau": Bits(v14=512, v15="v14"),
-        "SingleTauOrTauMet": Bits(v12=1024, v15="v14"),  # more general paths than SingleTau in v14
+        "SingleTauOrTauMet": Bits(v12=1024, v14="v12", v15="v14"),  # more general paths than SingleTau in v14
         "VBFDiTau": Bits(v14=1024, v15="v14"),
-        "VBFpDoublePFTau_run2": Bits(v12=2048, v15="v14"),
-        "VBFpDoublePFTau_run3": Bits(v12=4096, v15="v14"),  # warning: this trigger bit expects "ChargedIso" in the filter name, this does not correspond to our actual VBF filter name  # noqa
+        #"VBFpDoublePFTau_run2": Bits(v12=2048, v15="v14"),
+        #"VBFpDoublePFTau_run3": Bits(v12=4096, v15="v14"),  # warning: this trigger bit expects "ChargedIso" in the filter name, this does not correspond to our actual VBF filter name  # noqa
         "DiTau": Bits(v14=2048, v15="v14"),
         "DiPFJetAndDiTau": Bits(v12=8192, v15="v14"),
         "DiTauAndPFJet": Bits(v12=16384, v14="v12", v15="v14"),
@@ -132,9 +132,9 @@ trigger_bits = DotDict.wrap({
         "BTagPFDeepJet4p5Triple": Bits(v12=33554432, v14="v12", v15="v14"),
         "2BTagSumOR2BTagMeanPaths": Bits(v12=67108864, v14="v12", v15="v14"),
         "2/1PixelOnlyPFCentralJetTightIDPt20/50": Bits(v12=134217728, v14="v12", v15="v14"),
-        "2PFCentralJetTightIDPt30": Bits(v12=268435456, v14="v12", v15="v14"),
-        "1PFCentralJetTightIDPt60": Bits(v12=536870912, v14="v12", v15="v14"),
-        "PF2CentralJetPt30PNet2BTagMean0p50": Bits(v12=1073741824, v14="v12", v15="v14"),
+        "2PFCentralJetTightIDPt30": Bits(v12=2**28, v14="v12", v15="v14"),
+        "1PFCentralJetTightIDPt60": Bits(v12=2**29, v14="v12", v15="v14"),
+        "PF2CentralJetPt30PNet2BTagMean0p50": Bits(v12=2**30, v14="v12", v15="v14"),
     },
 })
 
