@@ -1,15 +1,19 @@
 #!/bin/sh
 
 # Custom post-commit hook that runs the linter.
+RED='\033[0;31m'
+NC='\033[0m' # No Color
 
 action() {
     # just lint
-    if [ ! -d "${HBT_BASE}" ]; then
-        >&2 echo "HBT_BASE not setup, skip linting"
-    elif [ "${HBT_SKIP_POST_COMMIT}" != "1" ]; then
+    if [ ! -d "${MULTILEPTON_BASE}" ]; then
+        >&2 echo "MULTILEPTON_BASE not setup, skip linting"
+    elif [ "${MULTILEPTON_SKIP_POST_COMMIT}" != "1" ]; then
+        bash "${MULTILEPTON_BASE}/tests/run_linting"
         echo "post-commit linting ..."
-        bash "${HBT_BASE}/tests/run_linting"
-        echo
+        echo -e "${RED}⚠️  Linting Issues Found${NC}"
+        echo "Please resolve the issues above (if there any!) before pushing to the repository."
+        echo ...
     fi
 
     # always end successfully

@@ -161,16 +161,22 @@ setup_multilepton() {
     #
     # additional common cf setup steps
     #
-    # if [[ "${CF_SKIP_SETUP:-false}" != "true" ]]; then
-    if ! ($CF_MAMBA_BASE env export | grep -q correctionlib); then
-        echo correctionlib misisng, installing...
-        $CF_MAMBA_BASE install \
-            correctionlib==2.7.0 \
-            || return "$?"
-        $CF_MAMBA_BASE clean --yes --all
+    IS_CI=${CI:-false}
+    [ -n "${GITHUB_ACTIONS}" ] && IS_CI=true
+    
+    if [[ "${IS_CI}" == "true" ]]; then
+        echo "[setup] CF_SKIP_SETUP=true → skipping dependency installation"
+    else
+        echo "[setup] Performing full environment setup"
+        if ! ($CF_MAMBA_BASE env export | grep -q correctionlib); then
+            echo correctionlib misisng, installing...
+            $CF_MAMBA_BASE install \
+                correctionlib==2.7.0 \
+                || return "$?"
+            $CF_MAMBA_BASE clean --yes --all
+        fi
+        cf_setup_post_install || return "$?"
     fi
-    # fi
-    cf_setup_post_install || return "$?"
     
     # update the law config file to switch from mirrored to bare wlcg targets
     # as local mounts are typically not available remotely
