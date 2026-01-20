@@ -25,9 +25,9 @@ trigger_bits = DotDict.wrap({
         "WPTightTrackIso": Bits(v12=2, v14="v12", v15="v14"),
         "WPLooseTrackIso": Bits(v12=4, v14="v12", v15="v14"),
         "OverlapFilterPFTau": Bits(v12=8, v14="v12", v15="v14"),
-        "DiElectron": Bits(v12=16, v15="v14"),
-        "DiElectronLeg1": Bits(v14=16, v15="v14"),
-        "DiElectronLeg2": Bits(v14=32, v15="v14"),
+        "DiElectron": Bits(v12=2**4, v14="v12", v15="v14"),
+        "DiElectronLeg1": Bits(v12=2**4, v14="v12", v15="v14"),
+        "DiElectronLeg2": Bits(v12=2**5, v14="v12", v15="v14"),
         "MuEle": Bits(v12=32, v14=64, v15="v14"),
         "EleTau": Bits(v12=64, v14=128, v15="v14"),
         "TripleElectron": Bits(v12=128, v14=256, v15="v14"),
@@ -58,33 +58,33 @@ trigger_bits = DotDict.wrap({
         "MuTauPNet": Bits(v14=8192, v15="v14"),
     },
     "tau": {  # general comment: lot of v14 paths contain PNet paths, not available in v12, e.g. OverlapFilterIsoEle
-        "LooseChargedIso": Bits(v12=1, v15="v14"),
+        "LooseChargedIso": Bits(v12=1),
         "Loose": Bits(v14=1, v15="v14"),
-        "MediumChargedIso": Bits(v12=2, v15="v14"),
+        "MediumChargedIso": Bits(v12=2),
         "Medium": Bits(v14=2, v15="v14"),
-        "TightChargedIso": Bits(v12=4, v15="v14"),
+        "TightChargedIso": Bits(v12=4),
         "Tight": Bits(v14=4, v15="v14"),
         "DeepTau": Bits(v12=8, v14="v12", v15="v14"),
         "PNet": Bits(v14=16, v15="v14"),
-        "TightOOSCPhotons": Bits(v12=16, v15="v14"),
+        "TightOOSCPhotons": Bits(v12=16, v14="v12", v15="v14"),
         "HPS": Bits(v12=32, v14=268435456, v15="v14"),
         "ChargedIso": Bits(v14=32, v15="v14"),
-        "ChargedIsoDiTau": Bits(v12=64, v15="v14"),
-        "Dxy": Bits(v14=64, v15="v14"),
+        "ChargedIsoDiTau": Bits(v12=2**5, v14="v12", v15="v14"),
+        "Dxy": Bits(v14=2**6, v15="v14"),
         "DeepTauDiTau": Bits(v12=128, v14=2048 + 8, v15="v14"),  # manually created bit combinations for v14
         "ETauFilter": Bits(v14=128, v15="v14"),
         "MuTauFilter": Bits(v14=256, v15="v14"),
         "OverlapFilterIsoEle": Bits(v12=256, v14=4096, v15="v14"),  # contains HPS in v14, not in v12
         "OverlapFilterIsoMu": Bits(v12=512, v14=8192, v15="v14"),  # contains HPS in v14, not in v12
         "SingleTau": Bits(v14=512, v15="v14"),
-        "SingleTauOrTauMet": Bits(v12=1024, v15="v14"),  # more general paths than SingleTau in v14
+        "SingleTauOrTauMet": Bits(v12=1024, v14="v12", v15="v14"),  # more general paths than SingleTau in v14
         "VBFDiTau": Bits(v14=1024, v15="v14"),
-        "VBFpDoublePFTau_run2": Bits(v12=2048, v15="v14"),
-        "VBFpDoublePFTau_run3": Bits(v12=4096, v15="v14"),  # warning: this trigger bit expects "ChargedIso" in the filter name, this does not correspond to our actual VBF filter name  # noqa
+        "VBFpDoublePFTau_run2": Bits(v12=2048),
+        "VBFpDoublePFTau_run3": Bits(v12=4096),  # warning: this trigger bit expects "ChargedIso" in the filter name, this does not correspond to our actual VBF filter name  # noqa
         "DiTau": Bits(v14=2048, v15="v14"),
-        "DiPFJetAndDiTau": Bits(v12=8192, v15="v14"),
+        "DiPFJetAndDiTau": Bits(v12=8192, v14="v12", v15="v14"),
         "DiTauAndPFJet": Bits(v12=16384, v14="v12", v15="v14"),
-        "DisplacedTau": Bits(v12=32768, v15="v14"),
+        "DisplacedTau": Bits(v12=32768, v14="v12", v15="v14"),
         "ETauDisplaced": Bits(v14=32768, v15="v14"),
         "MuTauDisplaced": Bits(v14=65536, v15="v14"),
         "DiTauDisplaced": Bits(v14=131072, v15="v14"),
@@ -95,11 +95,11 @@ trigger_bits = DotDict.wrap({
         "MonitoringDiTau": Bits(v14=8388608, v15="v14"),
         "VBFDoubleTauMonitoring": Bits(v14=33554432, v15="v14"),
         "OverlapFilter": Bits(v14=16777216, v15="v14"),
-        "RegionalPaths": Bits(v12=131072, v15="v14"),
-        "L1SeededPaths": Bits(v12=262144, v15="v14"),
-        "MatchL1HLT": Bits(v12=262144, v14=134217728, v15="v14"),  # for v12: alias for v12-v14 compatibility
-        "1Prong": Bits(v12=524288, v15="v14"),
-        "OneProng": Bits(v14=4194304, v15="v14"),  # just changed "1" to "One" for v14, still means different filters
+        "RegionalPaths": Bits(v12=2**17),
+        "L1SeededPaths": Bits(v12=2**18),
+        "MatchL1HLT": Bits(v12=262144, v14=2**27, v15="v14"),  # for v12: alias for v12-v14 compatibility
+        "1Prong": Bits(v12=2**19),
+        "OneProng": Bits(v14=2**22, v15="v14"),  # just changed "1" to "One" for v14, still means different filters
         "SinglePFTauFilter": Bits(v14=536870912, v15="v14"),
         "VBFSingleTau": Bits(v14=1073741824, v15="v14"),
     },
@@ -132,9 +132,9 @@ trigger_bits = DotDict.wrap({
         "BTagPFDeepJet4p5Triple": Bits(v12=33554432, v14="v12", v15="v14"),
         "2BTagSumOR2BTagMeanPaths": Bits(v12=67108864, v14="v12", v15="v14"),
         "2/1PixelOnlyPFCentralJetTightIDPt20/50": Bits(v12=134217728, v14="v12", v15="v14"),
-        "2PFCentralJetTightIDPt30": Bits(v12=268435456, v14="v12", v15="v14"),
-        "1PFCentralJetTightIDPt60": Bits(v12=536870912, v14="v12", v15="v14"),
-        "PF2CentralJetPt30PNet2BTagMean0p50": Bits(v12=1073741824, v14="v12", v15="v14"),
+        "2PFCentralJetTightIDPt30": Bits(v12=2**28, v14="v12", v15="v14"),
+        "1PFCentralJetTightIDPt60": Bits(v12=2**29, v14="v12", v15="v14"),
+        "PF2CentralJetPt30PNet2BTagMean0p50": Bits(v12=2**30, v14="v12", v15="v14"),
     },
 })
 
@@ -274,7 +274,7 @@ def add_triggers(config: od.Config) -> None:
                 "legs": dict(mu=TriggerLeg(pdg_id=13, trigger_bits=get_bit_sum_v("mu", ["SingleMuon"]))),
                 "filters": ["hltL3crIsoL1sSingleMu22L1f0L2f10QL3f24QL3trkIsoFiltered0p08",
                             "hltL3crIsoL1sSingleMu22L1f0L2f10QL3f24QL3trkIsoFiltered0p07"],  # (1mu + Iso)
-                "on_datasets": ["mutau", "emu_from_e", "emu_from_mu", "mumu"],
+                "on_datasets": ["mutau", "emu_from_e", "emu_from_mu", "mumu", "mue"],
                 "tags": ["single_trigger", "single_mu"],
             },
         })
@@ -284,8 +284,8 @@ def add_triggers(config: od.Config) -> None:
             # single electron
             "HLT_Ele28_eta2p1_WPTight_Gsf_HT150": {
                 "legs": dict(e=TriggerLeg(pdg_id=11, trigger_bits=get_bit_sum_v("e", ["WPTightTrackIso"]))),
-                "filters": [],
-                "on_datasets": ["etau", "ee", "emu_from_e", "emu_from_mu"],
+                # "filters": [],
+                "on_datasets": ["etau", "ee", "emu_from_e", "emu_from_mu", "mue"],
                 "tags": ["single_trigger", "single_e"],
             },
         })
@@ -296,10 +296,10 @@ def add_triggers(config: od.Config) -> None:
             "HLT_Ele24_eta2p1_WPTight_Gsf_PNetTauhPFJet30_Loose_eta2p3_CrossL1": {
                 "legs": dict(e=TriggerLeg(pdg_id=11, trigger_bits=get_bit_sum_v("e",
                                 ["OverlapFilterPFTau", "EleTau"])),
-                             tau=TriggerLeg(pdg_id=15, trigger_bits=get_bit_sum_v("tau",
-                                 ["PNet", "OverlapFilterIsoEle", "ETauFilter" if nano_version == 14 else None]))),   # noqa: E501
-                "filters": ["hltHpsOverlapFilterIsoEle24WPTightGsfLooseETauWPDeepTauPFTau30"],  # (OverlapFilter)
-                "on_datasets": ["etau"],
+                            tau=TriggerLeg(pdg_id=15, trigger_bits=get_bit_sum_v("tau",
+                                ["PNet", "OverlapFilterIsoEle", "ETauFilter" if nano_version == 14 else None]))),
+                "filters": ["hltHpsOverlapFilterIsoEle24WPTightGsfLooseETauWPDeepTauPFTau30"],
+                "on_datasets": ["etau", "mue"],
                 "tags": ["cross_trigger", "cross_e_tau"],
             },
 
@@ -307,39 +307,56 @@ def add_triggers(config: od.Config) -> None:
             "HLT_IsoMu20_eta2p1_PNetTauhPFJet27_Loose_eta2p3_CrossL1": {
                 "legs": dict(mu=TriggerLeg(pdg_id=13, trigger_bits=get_bit_sum_v("mu",
                                 ["OverlapFilterPFTau", "MuTau"])),
-                             tau=TriggerLeg(pdg_id=15, trigger_bits=get_bit_sum_v("tau",
-                                 ["PNet", "OverlapFilterIsoMu", "MatchL1HLT", "MuTauFilter" if nano_version == 14 else None]))),  # noqa: E501
+                            tau=TriggerLeg(pdg_id=15, trigger_bits=get_bit_sum_v("tau",
+                                ["PNet", "OverlapFilterIsoMu", "MatchL1HLT",
+                                    "MuTauFilter" if nano_version == 14 else None]))),
                 "filters": ["hltHpsSelectedPFTau27LooseMuTauWPDeepTauVsJetsAgainstMuonL1HLTMatched"],
-                "on_datasets": ["mutau"],
+                "on_datasets": ["mutau", "mue"],
                 "tags": ["cross_trigger", "cross_mu_tau"],
             },
 
             # tauh tauh
             "HLT_DoublePNetTauhPFJet30_Medium_L2NN_eta2p3": {
-                "legs": dict(tau1=TriggerLeg(pdg_id=15, trigger_bits=get_bit_sum_v("tau", ["DiTau", "PNet", "Medium" if nano_version == 14 else None])),  # noqa: E501
-                             tau2=TriggerLeg(pdg_id=15, trigger_bits=get_bit_sum_v("tau", ["DiTau", "PNet", "Medium" if nano_version == 14 else None]))),  # noqa: E501
-                "filters": ["hltHpsDoublePFTau35MediumDitauWPDeepTauL1HLTMatched"],  # (Deeptau + HPS),
+                "legs": dict(tau1=TriggerLeg(pdg_id=15, trigger_bits=get_bit_sum_v("tau",
+                                ["DiTau", "PNet", "Medium" if nano_version == 14 else None])),
+                            tau2=TriggerLeg(pdg_id=15, trigger_bits=get_bit_sum_v("tau",
+                                ["DiTau", "PNet", "Medium" if nano_version == 14 else None]))),
+                "filters": ["hltHpsDoublePFTau35MediumDitauWPDeepTauL1HLTMatched"],
                 "on_datasets": ["tautau"],
                 "tags": ["cross_trigger", "cross_tau_tau"],
             },
 
             # vbf
             "HLT_VBF_DoublePNetTauhPFJet20_eta2p2": {
-                "legs": dict(tau1=TriggerLeg(pdg_id=15, trigger_bits=get_bit_sum_v("tau", ["VBFDiTau", "PNet" if nano_version == 14 else None])),  # noqa: E501
-                             tau2=TriggerLeg(pdg_id=15, trigger_bits=get_bit_sum_v("tau", ["VBFDiTau", "PNet" if nano_version == 14 else None])),  # noqa: E501
-                             vbf1=TriggerLeg(pdg_id=1, trigger_bits=None),
-                             vbf2=TriggerLeg(pdg_id=1, trigger_bits=None)),
+                "legs": dict(tau1=TriggerLeg(pdg_id=15, trigger_bits=get_bit_sum_v("tau",
+                                ["VBFDiTau", "PNet" if nano_version == 14 else None])),
+                            tau2=TriggerLeg(pdg_id=15, trigger_bits=get_bit_sum_v("tau",
+                                ["VBFDiTau", "PNet" if nano_version == 14 else None])),
+                            vbf1=TriggerLeg(pdg_id=1, trigger_bits=None),
+                            vbf2=TriggerLeg(pdg_id=1, trigger_bits=None)),
                 "filters": ["hltHpsDoublePFTau20TrackDeepTauDitauWPForVBFIsoTau",
-                            "hltMatchedVBFTwoPFJets2CrossCleanedFromDoubleMediumDeepTauDitauWPPFTauHPS20?"],
+                            "hltMatchedVBFTwoPFJets2CrossCleanedFromDoubleMediumDeepTauDitauWPPFTauHPS20"],
                 "on_datasets": ["tautau"],
                 "tags": ["cross_trigger", "cross_tau_tau_vbf"],
             },
-
+            # "HLT_VBF_DiPFJet115_40_Mjj850_DoublePNetTauhPFJet20_eta2p3": {
+            #    "legs": dict(tau1=TriggerLeg(pdg_id=15, trigger_bits=get_bit_sum_v("tau",
+            #                   ["VBFDiTau","PNet" if nano_version == 14 else None])),
+            #                 tau2=TriggerLeg(pdg_id=15, trigger_bits=get_bit_sum_v("tau",
+            #                   ["VBFDiTau","PNet" if nano_version == 14 else None])),
+            #                 vbf1=TriggerLeg(pdg_id=1, trigger_bits=None),
+            #                 vbf2=TriggerLeg(pdg_id=1, trigger_bits=None),
+            #                 ),
+            # "filters": ["hltHpsDoublePFTau20TrackDeepTauDitauWPForVBFIsoTau",
+            #   "hltMatchedVBFTwoPFJets2CrossCleanedFromDoubleMediumDeepTauDitauWPPFTauHPS20?"],
+            #    "on_datasets": ["tautau"],
+            #    "tags": ["cross_trigger", "cross_tau_tau_vbf"],
+            #     },
             # tau tau jet
             "HLT_DoublePNetTauhPFJet26_L2NN_eta2p3_PFJet60": {
                 "legs": dict(tau1=TriggerLeg(pdg_id=15, trigger_bits=get_bit_sum_v("tau", ["DiTauAndPFJet"])),
-                             tau2=TriggerLeg(pdg_id=15, trigger_bits=get_bit_sum_v("tau", ["DiTauAndPFJet"])),
-                             jet=TriggerLeg(pdg_id=1, trigger_bits=get_bit_sum_v("jet", ["DoubleTau+Jet"]))),
+                            tau2=TriggerLeg(pdg_id=15, trigger_bits=get_bit_sum_v("tau", ["DiTauAndPFJet"])),
+                            jet=TriggerLeg(pdg_id=1, trigger_bits=get_bit_sum_v("jet", ["DoubleTau+Jet"]))),
                 "filters": ["hltHpsDoublePFTau30MediumDitauWPDeepTauL1HLTMatchedDoubleTauJet",
                             "hltHpsOverlapFilterDeepTauDoublePFTau30PFJet60"],
                 "on_datasets": ["tautau"],
@@ -353,24 +370,28 @@ def add_triggers(config: od.Config) -> None:
             "HLT_Ele30_WPTight_Gsf": {
                 "legs": dict(e=TriggerLeg(pdg_id=11, trigger_bits=get_bit_sum_v("e", ["WPTightTrackIso"]))),
                 "filters": [],
-                "on_datasets": ["etau", "ee", "emu_from_e", "emu_from_mu"],
+                "on_datasets": ["etau", "ee", "emu_from_e", "emu_from_mu", "mue"],
                 "tags": ["single_trigger", "single_e"],
             },
 
             # double electron
             "HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL": {
-                "legs": dict(e1=TriggerLeg(pdg_id=11, trigger_bits=get_bit_sum_v("e", ["DiElectron", "DiElectronLeg1", "CaloIdLTrackIdLIsoVL"])),  # noqa: E501
-                             e2=TriggerLeg(pdg_id=11, trigger_bits=get_bit_sum_v("e", ["DiElectron", "DiElectronLeg2", "CaloIdLTrackIdLIsoVL"]))),  # noqa: E501
+                "legs": dict(e1=TriggerLeg(pdg_id=11, trigger_bits=get_bit_sum_v("e",
+                                ["DiElectron", "DiElectronLeg1", "CaloIdLTrackIdLIsoVL"])),
+                            e2=TriggerLeg(pdg_id=11, trigger_bits=get_bit_sum_v("e",
+                                ["DiElectron", "DiElectronLeg2", "CaloIdLTrackIdLIsoVL"]))),
                 "filters": [],
-                "on_datasets": ["ee", "emu_from_e", "emu_from_mu"],
+                "on_datasets": ["ee", "emu_from_e", "emu_from_mu", "mue"],
                 "tags": ["double_trigger", "double_e"],
             },
 
             "HLT_DoubleEle8_CaloIdM_TrackIdM_Mass8_PFHT350": {
-                "legs": dict(e1=TriggerLeg(pdg_id=11, trigger_bits=get_bit_sum_v("e", ["DiElectron", "DiElectronLeg1"])),  # noqa: E501
-                             e2=TriggerLeg(pdg_id=11, trigger_bits=get_bit_sum_v("e", ["DiElectron", "DiElectronLeg2"]))),  # noqa: E501
+                "legs": dict(e1=TriggerLeg(pdg_id=11, trigger_bits=get_bit_sum_v("e",
+                                ["DiElectron", "DiElectronLeg1"])),
+                            e2=TriggerLeg(pdg_id=11, trigger_bits=get_bit_sum_v("e",
+                                ["DiElectron", "DiElectronLeg2"]))),
                 "filters": [],
-                "on_datasets": ["ee", "emu_from_e", "emu_from_mu"],
+                "on_datasets": ["ee", "emu_from_e", "emu_from_mu", "mue"],
                 "tags": ["double_trigger", "double_e"],
             },
 
@@ -378,7 +399,7 @@ def add_triggers(config: od.Config) -> None:
             "HLT_Ele16_Ele12_Ele8_CaloIdL_TrackIdL": {
                 "legs": dict(e=TriggerLeg(pdg_id=11, trigger_bits=get_bit_sum_v("e", ["TripleElectron"]))),
                 "filters": [],
-                "on_datasets": ["ee", "emu_from_e", "emu_from_mu"],
+                "on_datasets": ["ee", "emu_from_e", "emu_from_mu", "mue"],
                 "tags": ["triple_trigger", "triple_e"],
             },
 
@@ -386,21 +407,21 @@ def add_triggers(config: od.Config) -> None:
             "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8": {
                 "legs": dict(mu=TriggerLeg(pdg_id=13, trigger_bits=get_bit_sum_v("mu", ["DiMuon", "TrkIsoVVL"]))),
                 "filters": [],
-                "on_datasets": ["mumu", "emu_from_e", "emu_from_mu"],
+                "on_datasets": ["mumu", "emu_from_e", "emu_from_mu", "mue"],
                 "tags": ["double_trigger", "double_mu"],
             },
 
             "HLT_DoubleMu3_DZ_PFMET50_PFMHT60": {
                 "legs": dict(mu=TriggerLeg(pdg_id=13, trigger_bits=get_bit_sum_v("mu", ["DiMuon"]))),
                 "filters": [],
-                "on_datasets": ["mumu", "emu_from_e", "emu_from_mu"],
+                "on_datasets": ["mumu", "emu_from_e", "emu_from_mu", "mue"],
                 "tags": ["double_trigger", "double_mu"],
             },
 
             "HLT_Mu18_Mu9_SameSign": {
                 "legs": dict(mu=TriggerLeg(pdg_id=13, trigger_bits=get_bit_sum_v("mu", ["DiMuon"]))),
                 "filters": [],
-                "on_datasets": ["mumu", "emu_from_e", "emu_from_mu"],
+                "on_datasets": ["mumu", "emu_from_e", "emu_from_mu", "mue"],
                 "tags": ["double_trigger", "double_mu"],
             },
 
@@ -408,7 +429,7 @@ def add_triggers(config: od.Config) -> None:
             "HLT_TripleMu_5_3_3_Mass3p8_DZ": {
                 "legs": dict(mu=TriggerLeg(pdg_id=13, trigger_bits=get_bit_sum_v("mu", ["TripleMuon"]))),
                 "filters": [],
-                "on_datasets": ["mumu", "emu_from_e", "emu_from_mu"],
+                "on_datasets": ["mumu", "emu_from_e", "emu_from_mu", "mue"],
                 "tags": ["triple_trigger", "triple_mu"],
             },
 
@@ -416,10 +437,11 @@ def add_triggers(config: od.Config) -> None:
             "HLT_Ele24_eta2p1_WPTight_Gsf_LooseDeepTauPFTauHPS30_eta2p1_CrossL1": {
                 "legs": dict(e=TriggerLeg(pdg_id=11, trigger_bits=get_bit_sum_v("e",
                                 ["OverlapFilterPFTau", "EleTau"])),
-                             tau=TriggerLeg(pdg_id=15, trigger_bits=get_bit_sum_v("tau",
-                                 ["DeepTau", "HPS", "OverlapFilterIsoEle", "ETauFilter" if nano_version == 14 else None]))),  # noqa: E501
+                            tau=TriggerLeg(pdg_id=15, trigger_bits=get_bit_sum_v("tau",
+                                ["DeepTau", "HPS", "OverlapFilterIsoEle",
+                                    "ETauFilter" if nano_version == 14 else None]))),
                 "filters": ["hltHpsOverlapFilterIsoEle24WPTightGsfLooseETauWPDeepTauPFTau30"],
-                "on_datasets": ["etau"],
+                "on_datasets": ["etau", "mue"],
                 "tags": ["cross_trigger", "cross_e_tau"],
             },
 
@@ -427,30 +449,37 @@ def add_triggers(config: od.Config) -> None:
             "HLT_IsoMu20_eta2p1_LooseDeepTauPFTauHPS27_eta2p1_CrossL1": {
                 "legs": dict(mu=TriggerLeg(pdg_id=13, trigger_bits=get_bit_sum_v("mu",
                                 ["OverlapFilterPFTau", "MuTau"])),
-                             tau=TriggerLeg(pdg_id=15, trigger_bits=get_bit_sum_v("tau",
-                                 ["DeepTau", "HPS", "OverlapFilterIsoMu", "MatchL1HLT", "MuTauFilter" if nano_version == 14 else None]))),   # noqa: E501
+                            tau=TriggerLeg(pdg_id=15, trigger_bits=get_bit_sum_v("tau",
+                                ["DeepTau", "HPS", "OverlapFilterIsoMu", "MatchL1HLT",
+                                    "MuTauFilter" if nano_version == 14 else None]))),
                 "filters": ["hltHpsSelectedPFTau27LooseMuTauWPDeepTauVsJetsAgainstMuonL1HLTMatched"],
-                "on_datasets": ["mutau"],
+                "on_datasets": ["mutau", "mue"],
                 "tags": ["cross_trigger", "cross_mu_tau"],
             },
 
             # tauh tauh
             "HLT_DoubleMediumDeepTauPFTauHPS35_L2NN_eta2p1": {
-                "legs": dict(tau1=TriggerLeg(pdg_id=15, trigger_bits=get_bit_sum_v("tau", ["DeepTauDiTau", "HPS", "Medium" if nano_version == 14 else None])),  # noqa: E501
-                             tau2=TriggerLeg(pdg_id=15, trigger_bits=get_bit_sum_v("tau", ["DeepTauDiTau", "HPS", "Medium" if nano_version == 14 else None]))),  # noqa: E501
-                "filters": ["hltHpsDoublePFTau35MediumDitauWPDeepTauL1HLTMatched"],  # (Deeptau + HPS),
-                "on_datasets": ["tautau"],
+                "legs": dict(tau1=TriggerLeg(pdg_id=15, trigger_bits=get_bit_sum_v("tau",
+                                ["DeepTauDiTau", "HPS", "Medium" if nano_version == 14 else None])),
+                            tau2=TriggerLeg(pdg_id=15, trigger_bits=get_bit_sum_v("tau",
+                                ["DeepTauDiTau", "HPS", "Medium" if nano_version == 14 else None]))),
+                "filters": ["hltHpsDoublePFTau35MediumDitauWPDeepTauL1HLTMatched"],
+                "on_datasets": ["tautau", "mue"],
                 "tags": ["cross_trigger", "cross_tau_tau"],
             },
 
             # vbf
             "HLT_VBF_DoubleMediumDeepTauPFTauHPS20_eta2p1": {
-                "legs": dict(tau1=TriggerLeg(pdg_id=15, trigger_bits=get_bit_sum_v("tau", ["VBFDiTau", "HPS", "DeepTau" if nano_version == 14 else None])),  # noqa: E501
-                             tau2=TriggerLeg(pdg_id=15, trigger_bits=get_bit_sum_v("tau", ["VBFDiTau", "HPS", "DeepTau" if nano_version == 14 else None])),  # noqa: E501
-                             vbf1=TriggerLeg(pdg_id=1, trigger_bits=get_bit_sum_v("jet", ["VBFcrossCleanedDeepTauPFTau" if nano_version == 14 else None])),  # noqa: E501
-                             vbf2=TriggerLeg(pdg_id=1, trigger_bits=get_bit_sum_v("jet", ["VBFcrossCleanedDeepTauPFTau" if nano_version == 14 else None]))),  # noqa: E501
+                "legs": dict(tau1=TriggerLeg(pdg_id=15, trigger_bits=get_bit_sum_v("tau",
+                                ["VBFDiTau", "HPS", "DeepTau" if nano_version == 14 else None])),
+                            tau2=TriggerLeg(pdg_id=15, trigger_bits=get_bit_sum_v("tau",
+                                ["VBFDiTau", "HPS", "DeepTau" if nano_version == 14 else None])),
+                            vbf1=TriggerLeg(pdg_id=1, trigger_bits=get_bit_sum_v("jet",
+                                ["VBFcrossCleanedDeepTauPFTau" if nano_version == 14 else None])),
+                            vbf2=TriggerLeg(pdg_id=1, trigger_bits=get_bit_sum_v("jet",
+                                ["VBFcrossCleanedDeepTauPFTau" if nano_version == 14 else None]))),
                 "filters": ["hltHpsDoublePFTau20TrackDeepTauDitauWPForVBFIsoTau",
-                            "hltMatchedVBFTwoPFJets2CrossCleanedFromDoubleMediumDeepTauDitauWPPFTauHPS20?"],
+                            "hltMatchedVBFTwoPFJets2CrossCleanedFromDoubleMediumDeepTauDitauWPPFTauHPS20"],
                 "on_datasets": ["tautau"],
                 "tags": ["cross_trigger", "cross_tau_tau_vbf"],
             },
@@ -458,8 +487,8 @@ def add_triggers(config: od.Config) -> None:
             # tau tau jet
             "HLT_DoubleMediumDeepTauPFTauHPS30_L2NN_eta2p1_PFJet60": {
                 "legs": dict(tau1=TriggerLeg(pdg_id=15, trigger_bits=get_bit_sum_v("tau", ["DiTauAndPFJet"])),
-                             tau2=TriggerLeg(pdg_id=15, trigger_bits=get_bit_sum_v("tau", ["DiTauAndPFJet"])),
-                             jet=TriggerLeg(pdg_id=1, trigger_bits=get_bit_sum_v("jet", ["DoubleTau+Jet"]))),
+                            tau2=TriggerLeg(pdg_id=15, trigger_bits=get_bit_sum_v("tau", ["DiTauAndPFJet"])),
+                            jet=TriggerLeg(pdg_id=1, trigger_bits=get_bit_sum_v("jet", ["DoubleTau+Jet"]))),
                 "filters": ["hltHpsDoublePFTau30MediumDitauWPDeepTauL1HLTMatchedDoubleTauJet",
                             "hltHpsOverlapFilterDeepTauDoublePFTau30PFJet60"],
                 "on_datasets": ["tautau"],
@@ -469,26 +498,28 @@ def add_triggers(config: od.Config) -> None:
             # cross-e-mu-double/triple triggers
             "HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ": {
                 "legs": dict(mu=TriggerLeg(pdg_id=13, trigger_bits=get_bit_sum_v("mu", ["TrkIsoVVL"])),
-                             e=TriggerLeg(pdg_id=11, trigger_bits=get_bit_sum_v("e", ["CaloIdLTrackIdLIsoVL"]))),
-                "filters": [],
-                "on_datasets": ["ee", "mumu", "emu_from_e", "emu_from_mu"],
+                            e=TriggerLeg(pdg_id=11, trigger_bits=get_bit_sum_v("e", ["CaloIdLTrackIdLIsoVL"]))),
+                # "filters": [],
+                "on_datasets": ["ee", "mumu", "emu_from_e", "emu_from_mu", "mue"],
                 "tags": ["double_trigger", "double_emu"],
             },
 
             "HLT_DiMu4_Ele9_CaloIdL_TrackIdL_DZ_Mass3p8": {
                 "legs": dict(mu=TriggerLeg(pdg_id=13, trigger_bits=get_bit_sum_v("mu", ["DiMuon"])),
-                             e=TriggerLeg(pdg_id=11, trigger_bits=get_bit_sum_v("e", ["CaloIdLTrackIdLIsoVL"]))),
-                "filters": [],
-                "on_datasets": ["mumu", "emu_from_e", "emu_from_mu"],
+                            e=TriggerLeg(pdg_id=11, trigger_bits=get_bit_sum_v("e", ["CaloIdLTrackIdLIsoVL"]))),
+                # "filters": [],
+                "on_datasets": ["mumu", "emu_from_e", "emu_from_mu", "mue"],
                 "tags": ["triple_trigger", "triple_emumu"],
             },
 
             "HLT_Mu8_DiEle12_CaloIdL_TrackIdL": {
                 "legs": dict(mu=TriggerLeg(pdg_id=13, trigger_bits=None),
-                             e1=TriggerLeg(pdg_id=11, trigger_bits=get_bit_sum_v("e", ["DiElectronLeg1", "CaloIdLTrackIdLIsoVL"])),  # noqa: E501
-                             e2=TriggerLeg(pdg_id=11, trigger_bits=get_bit_sum_v("e", ["DiElectronLeg2", "CaloIdLTrackIdLIsoVL"]))),  # noqa: E501
-                "filters": [],
-                "on_datasets": ["ee", "emu_from_e", "emu_from_mu"],
+                            e1=TriggerLeg(pdg_id=11,
+                                trigger_bits=get_bit_sum_v("e", ["DiElectronLeg1", "CaloIdLTrackIdLIsoVL"])),
+                            e2=TriggerLeg(pdg_id=11,
+                                trigger_bits=get_bit_sum_v("e", ["DiElectronLeg2", "CaloIdLTrackIdLIsoVL"]))),
+                # "filters": [],
+                "on_datasets": ["ee", "emu_from_e", "emu_from_mu", "mue"],
                 "tags": ["triple_trigger", "triple_eemu"],
             },
         })
@@ -572,7 +603,7 @@ def add_triggers(config: od.Config) -> None:
             "HLT_IsoMu27": {
                 "legs": dict(mu=TriggerLeg(pdg_id=13, trigger_bits=get_bit_sum_v("mu", ["SingleMuon"]))),
                 "filters": ["hltL3crIsoL1sMu22Or25L1f0L2f10QL3f27QL3trkIsoFiltered0p07"],
-                "on_datasets": ["mutau", "emu_from_e", "emu_from_mu", "mumu"],
+                "on_datasets": ["mutau", "emu_from_e", "emu_from_mu", "mumu", "mue"],
                 "tags": ["single_trigger", "single_mu"],
             },
 

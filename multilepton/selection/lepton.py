@@ -418,8 +418,8 @@ def tau_selection(
         false_mask = full_like(events.Tau.pt, False, dtype=bool)
         return false_mask, false_mask
 
-    is_single_e = trigger.has_tag("single_e")
-    is_single_mu = trigger.has_tag("single_mu")
+    # is_single_e = trigger.has_tag("single_e")
+    # is_single_mu = trigger.has_tag("single_mu")
     is_cross_e = trigger.has_tag("cross_e_tau")
     is_cross_mu = trigger.has_tag("cross_mu_tau")
     is_cross_tau = trigger.has_tag("cross_tau_tau")
@@ -433,9 +433,8 @@ def tau_selection(
     # determine minimum pt and maximum eta
     max_eta = 2.5
     base_pt = 20.0
-    if is_single_e or is_single_mu:
-        min_pt = 20.0
-    elif is_cross_e:
+    # if is_single_e or is_single_mu:
+    if is_cross_e:
         # only existing after 2016
         min_pt = 0.0 if is_2016 else 35.0
     elif is_cross_mu:
@@ -447,6 +446,8 @@ def tau_selection(
         min_pt = 0.0 if is_2016 else 25.0
     elif is_cross_tau_jet:
         min_pt = None if not is_run3 else 35.0
+    else:
+        min_pt = 20.0
 
     # no_id mask for tagge rindependent tests
     noid_mask = (
@@ -570,7 +571,8 @@ def tau_trigger_matching(
         # new columns
         "channel_id", "leptons_os", "tau2_isolated", "single_triggered", "cross_triggered",
         "matched_trigger_ids", "tight_sel", "trig_match", "tight_sel_bdt", "trig_match_bdt", "ok_bdt_eormu",
-        "ok_bdt_eormu_bveto",
+        "ok_bdt_eormu_bveto", "ElectronLoose", "ElectronTight", "MuonLoose", "MuonTight",
+        "TauIso", "TauNoID",
     },
 )
 def lepton_selection(
@@ -583,6 +585,7 @@ def lepton_selection(
     Combined lepton selection.
     """
     wp_config = self.config_inst.x.tau_id_working_points
+    disable_triggers = getattr(self.config_inst.x, "disable_triggers", False)
     get_tau_tagger = lambda tag: f"id{self.config_inst.x.tau_tagger}VS{tag}"
 
     # get channels from the config
@@ -707,10 +710,11 @@ def lepton_selection(
         e_mask_bdt, e_ctrl_bdt, e_veto_bdt = self[electron_selection](events, trigger, ch_key="eormu", **kwargs)
         mu_mask_bdt, mu_ctrl_bdt, mu_veto_bdt = self[muon_selection](events, trigger, ch_key="eormu", **kwargs)
         tau_mask, tau_trigger_specific_mask, tau_iso_mask, noid_tau_mask = self[tau_selection](events,
-                trigger, e_mask, mu_mask, **kwargs)
+            trigger, e_mask, mu_mask, **kwargs)
 
         # early study tagger independendt taus
-        sel_noid_tau_mask = noid_tau_mask
+        # sel_noid_tau_mask = noid_tau_mask
+        sel_noid_tau_mask = sel_noid_tau_mask | noid_tau_mask
         if trigger.has_tag({"single_e"}):
             e_match = self[electron_trigger_matching](events, trigger, fired, leg_masks, **kwargs)
             e_trig_any = e_trig_any | fired  # “any single_e fired in this event?”
@@ -745,6 +749,7 @@ def lepton_selection(
             (tid, "tau_iso_mask"): tau_iso_mask,
             (tid, "e_ctrl_bdt"): e_ctrl_bdt, (tid, "e_mask_bdt"): e_mask_bdt, (tid, "e_veto_bdt"): e_veto_bdt,
             (tid, "mu_ctrl_bdt"): mu_ctrl_bdt, (tid, "mu_mask_bdt"): mu_mask_bdt, (tid, "mu_veto_bdt"): mu_veto_bdt,
+            (tid, "fired"): fired,
         })
 
         _tid_tags[tid] = set(trigger.tags)
@@ -759,11 +764,19 @@ def lepton_selection(
     mu_only_emutau = mu_trig_any & ~e_trig_any & ~tau_trig_any
     cross_e_tau_only = tau_trig_any & ~e_trig_any & ~mu_trig_any
     single_e_tids = [tid for tid, tags in _tid_tags.items() if "single_e" in tags]
+    double_e_tids = [tid for tid, tags in _tid_tags.items() if "double_e" in tags]
+    triple_e_tids = [tid for tid, tags in _tid_tags.items() if "triple_e" in tags]
     single_mu_tids = [tid for tid, tags in _tid_tags.items() if "single_mu" in tags]
+    double_mu_tids = [tid for tid, tags in _tid_tags.items() if "double_mu" in tags]
+    triple_mu_tids = [tid for tid, tags in _tid_tags.items() if "triple_mu" in tags]
+    double_emu_tids = [tid for tid, tags in _tid_tags.items() if "double_emu" in tags]
+    triple_eemu_tids = [tid for tid, tags in _tid_tags.items() if "triple_eemu" in tags]
+    triple_emumu_tids = [tid for tid, tags in _tid_tags.items() if "triple_emumu" in tags]
+    cross_tau_tau_any = [tid for tid, tags in _tid_tags.items() if {"cross_tau_tau",
+                                                                    "cross_tau_tau_jet", "cross_tau_tau_vbf"} & tags]
     cross_e_tau = [tid for tid, tags in _tid_tags.items() if "cross_e_tau" in tags]
     cross_mu_tau = [tid for tid, tags in _tid_tags.items() if "cross_mu_tau" in tags]
-    cross_tau_tau_any = [tid for tid, tags in _tid_tags.items() if {"cross_tau_tau",
-        "cross_tau_tau_jet", "cross_tau_tau_vbf"} & tags]
+    # all_tids = list(_tid_tags.keys())
 
     _trig_cache.update({
         # set of events that have triggered at least one single_e trigger
@@ -795,77 +808,148 @@ def lepton_selection(
                           "e2mutau", "emu2tau", "4tau", "2e0or1tau", "emu0or1tau", "2mu0or1tau"}:
             continue
 
-        if ch_key in {"3e", "4e", "2e0or1tau"}:
-            if self.dataset_inst.is_mc or self.dataset_inst.has_tag("ee"):
+        # eormu -> set trig_ids to any particular trigger, so that eormu does not run over all triggers
+
+        if ch_key in {"eormu"}:
+            if self.dataset_inst.is_mc:
                 trig_ids = single_e_tids
             else:
                 continue
 
-        elif ch_key in {"3mu", "4mu", "2mu0or1tau"}:
-            if self.dataset_inst.is_mc or self.dataset_inst.has_tag("mumu"):
-                trig_ids = single_mu_tids
+        # 3l0th + 3l1th + 4l: single, double, and triple lepton triggers
+
+        elif ch_key in {"3e", "4e", "3etau"}:
+            if self.dataset_inst.is_mc or self.dataset_inst.has_tag("ee"):
+                trig_ids = single_e_tids + double_e_tids + triple_e_tids
             else:
                 continue
 
-        elif ch_key in {"2emu", "e2mu", "2e2mu", "3emu", "e3mu", "emu0or1tau", "eormu"}:
-            if self.dataset_inst.has_tag("emu_from_e"):
+        elif ch_key in {"3mu", "4mu", "3mutau"}:
+            if self.dataset_inst.is_mc or self.dataset_inst.has_tag("mumu"):
+                trig_ids = single_mu_tids + double_mu_tids + triple_mu_tids
+            else:
+                continue
+
+        elif ch_key in {"2e2mu"}:
+            if self.dataset_inst.is_mc:
+                trig_ids = (single_e_tids + single_mu_tids + double_e_tids + double_mu_tids +
+                            double_emu_tids + triple_eemu_tids + triple_emumu_tids)
+            elif self.dataset_inst.has_tag("mue"):
+                trig_ids = double_emu_tids + triple_emumu_tids + triple_eemu_tids
+            elif self.dataset_inst.has_tag("mumu"):
+                trig_ids = double_mu_tids
+            elif self.dataset_inst.has_tag("ee"):
+                trig_ids = double_e_tids
+            elif self.dataset_inst.has_tag("emu_from_e"):
                 trig_ids = single_e_tids
             elif self.dataset_inst.has_tag("emu_from_mu"):
                 trig_ids = single_mu_tids
-            elif self.dataset_inst.is_mc:
-                trig_ids = single_e_tids + single_mu_tids
             else:
                 continue
 
-        elif ch_key in {"3etau"}:
-            if self.dataset_inst.is_mc or self.dataset_inst.has_tag("etau"):
-                trig_ids = single_e_tids + cross_e_tau
+        elif ch_key in {"3emu"}:
+            if self.dataset_inst.is_mc:
+                trig_ids = (single_e_tids + single_mu_tids + double_e_tids +
+                            double_emu_tids + triple_e_tids + triple_eemu_tids)
+            elif self.dataset_inst.has_tag("mue"):
+                trig_ids = double_emu_tids + triple_eemu_tids
+            elif self.dataset_inst.has_tag("ee"):
+                trig_ids = double_e_tids + triple_e_tids
+            elif self.dataset_inst.has_tag("emu_from_e"):
+                trig_ids = single_e_tids
+            elif self.dataset_inst.has_tag("emu_from_mu"):
+                trig_ids = single_mu_tids
             else:
                 continue
 
-        elif ch_key in {"2e2tau", "e3tau"}:
-            if self.dataset_inst.is_mc or self.dataset_inst.has_tag("etau"):
-                trig_ids = single_e_tids + cross_e_tau
+        elif ch_key in {"e3mu"}:
+            if self.dataset_inst.is_mc:
+                trig_ids = (single_e_tids + single_mu_tids + double_mu_tids +
+                            double_emu_tids + triple_mu_tids + triple_emumu_tids)
+            elif self.dataset_inst.has_tag("mue"):
+                trig_ids = double_emu_tids + triple_emumu_tids
+            elif self.dataset_inst.has_tag("mumu"):
+                trig_ids = double_mu_tids + triple_mu_tids
+            elif self.dataset_inst.has_tag("emu_from_e"):
+                trig_ids = single_e_tids
+            elif self.dataset_inst.has_tag("emu_from_mu"):
+                trig_ids = single_mu_tids
+            else:
+                continue
+
+        elif ch_key in {"2emu", "2emutau"}:
+            if self.dataset_inst.is_mc:
+                trig_ids = single_e_tids + single_mu_tids + double_e_tids + double_emu_tids + triple_eemu_tids
+            elif self.dataset_inst.has_tag("mue"):
+                trig_ids = double_emu_tids + triple_eemu_tids
+            elif self.dataset_inst.has_tag("ee"):
+                trig_ids = double_e_tids
+            elif self.dataset_inst.has_tag("emu_from_e"):
+                trig_ids = single_e_tids
+            elif self.dataset_inst.has_tag("emu_from_mu"):
+                trig_ids = single_mu_tids
+            else:
+                continue
+
+        elif ch_key in {"e2mu", "e2mutau"}:
+            if self.dataset_inst.is_mc:
+                trig_ids = single_e_tids + single_mu_tids + double_mu_tids + double_emu_tids + triple_emumu_tids
+            elif self.dataset_inst.has_tag("mue"):
+                trig_ids = double_emu_tids + triple_emumu_tids
+            elif self.dataset_inst.has_tag("mumu"):
+                trig_ids = double_mu_tids
+            elif self.dataset_inst.has_tag("emu_from_e"):
+                trig_ids = single_e_tids
+            elif self.dataset_inst.has_tag("emu_from_mu"):
+                trig_ids = single_mu_tids
+            else:
+                continue
+
+        # 2l2th + 2l0or1tau: single, double mixed lepton triggers
+
+        elif ch_key in {"2e2tau", "2e0or1tau"}:
+            if self.dataset_inst.is_mc or self.dataset_inst.has_tag("ee"):
+                trig_ids = single_e_tids + double_e_tids
+            else:
+                continue
+
+        elif ch_key in {"2mu2tau", "2mu0or1tau"}:
+            if self.dataset_inst.is_mc or self.dataset_inst.has_tag("mumu"):
+                trig_ids = single_mu_tids + double_mu_tids
+            else:
+                continue
+
+        elif ch_key in {"emu2tau", "emu0or1tau"}:
+            if self.dataset_inst.is_mc:
+                trig_ids = single_e_tids + single_mu_tids + double_emu_tids
+            elif self.dataset_inst.has_tag("mue"):
+                trig_ids = double_emu_tids
+            elif self.dataset_inst.has_tag("emu_from_e"):
+                trig_ids = single_e_tids
+            elif self.dataset_inst.has_tag("emu_from_mu"):
+                trig_ids = single_mu_tids
+            else:
+                continue
+
+        # 1l3th
+
+        elif ch_key in {"e3tau"}:
+            if self.dataset_inst.is_mc:
+                trig_ids = single_e_tids + cross_e_tau + cross_tau_tau_any
             elif self.dataset_inst.has_tag("tautau"):
-                trig_ids = cross_tau_tau_any
+                trig_ids = cross_e_tau + cross_tau_tau_any
+            elif self.dataset_inst.has_tag("etau"):
+                trig_ids = single_e_tids + cross_e_tau
             else:
                 continue
 
-        elif ch_key in {"3mutau"}:
-            if self.dataset_inst.is_mc or self.dataset_inst.has_tag("mutau"):
-                trig_ids = single_mu_tids + cross_mu_tau
-            else:
-                continue
-
-        elif ch_key in {"2mu2tau", "mu3tau"}:
+        elif ch_key in {"mu3tau"}:
             if self.dataset_inst.is_mc:
                 trig_ids = single_mu_tids + cross_mu_tau + cross_tau_tau_any
-            elif self.dataset_inst.has_tag("mutau"):
-                trig_ids = single_mu_tids + cross_mu_tau
             elif self.dataset_inst.has_tag("tautau"):
                 trig_ids = cross_tau_tau_any
-            else:
-                continue
-
-        elif ch_key in {"2emutau", "e2mutau"}:
-            if self.dataset_inst.is_mc:
-                trig_ids = single_e_tids + single_mu_tids + cross_e_tau + cross_mu_tau
-            elif self.dataset_inst.has_tag("etau"):
-                trig_ids = single_e_tids + cross_e_tau
             elif self.dataset_inst.has_tag("mutau"):
                 trig_ids = single_mu_tids + cross_mu_tau
-            else:
-                continue
-
-        elif ch_key in {"emu2tau"}:
-            if self.dataset_inst.is_mc:
-                trig_ids = single_e_tids + single_mu_tids + cross_e_tau + cross_mu_tau + cross_tau_tau_any
-            elif self.dataset_inst.has_tag("etau"):
-                trig_ids = single_e_tids + cross_e_tau
-            elif self.dataset_inst.has_tag("mutau"):
-                trig_ids = single_mu_tids + cross_mu_tau
-            elif self.dataset_inst.has_tag("tautau"):
-                trig_ids = cross_tau_tau_any
             else:
                 continue
 
@@ -897,6 +981,7 @@ def lepton_selection(
             mu_ctrl_bdt = _trig_cache[(tid, "mu_ctrl_bdt")]
             mu_veto_bdt = _trig_cache[(tid, "mu_veto_bdt")]
             mu_mask_bdt = _trig_cache[(tid, "mu_mask_bdt")]
+            fired = _trig_cache[(tid, "fired")]
 
             # channel dependent deeptau cuts vs e and mu, taumask has vs jet vvloose
             ch_tau_mask = (
@@ -928,16 +1013,14 @@ def lepton_selection(
                 sel_muon_mask = sel_muon_mask | (mu_base & mu_ctrl_bdt)
                 sel_loosemuon_mask = sel_loosemuon_mask | (mu_base & mu_veto_bdt)
                 sel_tightmuon_mask = sel_tightmuon_mask | (mu_base & mu_mask_bdt)
-
                 # leptons_os = ak.where(ok_bdt_eormu, False, leptons_os)
-                tight_ok = (e_base & (ak.sum(e_mask_bdt,  axis=1) >= 1)) | (mu_base & (ak.sum(mu_mask_bdt,  axis=1) >= 1))  # noqa E501
-                tight_sel_bdt = tight_sel_bdt | tight_ok
-
-                if tid in single_e_tids:
-                    trig_match_ok = base_ok & (ak.sum(e_match & e_ctrl_bdt, axis=1) >= 1)
-                elif tid in single_mu_tids:
-                    trig_match_ok = base_ok & (ak.sum(mu_match & mu_ctrl_bdt, axis=1) >= 1)
-
+                # tight_ok = (e_base & (ak.sum(e_mask_bdt,  axis=1) >= 1)) | (mu_base & (ak.sum(mu_mask_bdt,  axis=1) >= 1))  # noqa E501
+                # tight_sel_bdt = tight_sel_bdt | tight_ok
+                # if tid in single_e_tids:
+                #     trig_match_ok = base_ok & (ak.sum(e_match & e_ctrl_bdt, axis=1) >= 1)
+                # elif tid in single_mu_tids:
+                #     trig_match_ok = base_ok & (ak.sum(mu_match & mu_ctrl_bdt, axis=1) >= 1)
+                trig_match_ok = base_ok
                 trig_match_bdt = trig_match_bdt | trig_match_ok
                 single_triggered = ak.where(trig_match_ok, True, single_triggered)
 
@@ -953,6 +1036,8 @@ def lepton_selection(
                     (ak.sum(mu_veto, axis=1) == 0) &
                     (ak.sum(ch_tau_mask, axis=1) == 0)
                 )
+                if not disable_triggers:
+                    base_ok = base_ok and fired
 
                 ok = ak.where(base_ok, ok, False)
 
@@ -981,6 +1066,8 @@ def lepton_selection(
                     (ak.sum(e_veto, axis=1) == 0) &
                     (ak.sum(ch_tau_mask, axis=1) == 0)
                 )
+                if not disable_triggers:
+                    base_ok = base_ok and fired
 
                 ok = ak.where(base_ok, ok, False)
 
@@ -1010,6 +1097,9 @@ def lepton_selection(
                     (ak.sum(mu_veto, axis=1) == 1) &
                     (ak.sum(ch_tau_mask, axis=1) == 0)
                 )
+                if not disable_triggers:
+                    base_ok = base_ok and fired
+
                 ok = ak.where(base_ok, ok, False)
 
                 sel_electron_mask = sel_electron_mask | (ok & e_ctrl)
@@ -1052,6 +1142,9 @@ def lepton_selection(
                     (ak.sum(mu_veto, axis=1) == 2) &
                     (ak.sum(ch_tau_mask, axis=1) == 0)
                 )
+                if not disable_triggers:
+                    base_ok = base_ok and fired
+
                 ok = ak.where(base_ok, ok, False)
 
                 sel_electron_mask = sel_electron_mask | (ok & e_ctrl)
@@ -1093,6 +1186,8 @@ def lepton_selection(
                     (ak.sum(mu_veto, axis=1) == 0) &
                     (ak.sum(ch_tau_mask, axis=1) == 0)
                 )
+                if not disable_triggers:
+                    base_ok = base_ok and fired
 
                 ok = ak.where(base_ok, ok, False)
 
@@ -1121,6 +1216,8 @@ def lepton_selection(
                     (ak.sum(e_veto, axis=1) == 0) &
                     (ak.sum(ch_tau_mask, axis=1) == 0)
                 )
+                if not disable_triggers:
+                    base_ok = base_ok and fired
 
                 ok = ak.where(base_ok, ok, False)
 
@@ -1150,6 +1247,9 @@ def lepton_selection(
                     (ak.sum(mu_veto, axis=1) == 1) &
                     (ak.sum(ch_tau_mask, axis=1) == 0)
                 )
+                if not disable_triggers:
+                    base_ok = base_ok and fired
+
                 ok = ak.where(base_ok, ok, False)
 
                 sel_electron_mask = sel_electron_mask | (ok & e_ctrl)
@@ -1192,6 +1292,9 @@ def lepton_selection(
                     (ak.sum(mu_veto, axis=1) == 2) &
                     (ak.sum(ch_tau_mask, axis=1) == 0)
                 )
+                if not disable_triggers:
+                    base_ok = base_ok and fired
+
                 ok = ak.where(base_ok, ok, False)
 
                 sel_electron_mask = sel_electron_mask | (ok & e_ctrl)
@@ -1234,6 +1337,9 @@ def lepton_selection(
                     (ak.sum(mu_veto, axis=1) == 3) &
                     (ak.sum(ch_tau_mask, axis=1) == 0)
                 )
+                if not disable_triggers:
+                    base_ok = base_ok and fired
+
                 ok = ak.where(base_ok, ok, False)
 
                 sel_electron_mask = sel_electron_mask | (ok & e_ctrl)
@@ -1282,6 +1388,8 @@ def lepton_selection(
                     (ak.sum(mu_veto, axis=1) == 0) &
                     (ak.sum(ch_tau_mask, axis=1) == 1)
                 )
+                if not disable_triggers:
+                    base_ok = base_ok and fired
 
                 ok = ak.where(base_ok, ok, False)
 
@@ -1328,6 +1436,8 @@ def lepton_selection(
                     (ak.sum(mu_veto, axis=1) == 0) &
                     (ak.sum(ch_tau_mask, axis=1) == 2)
                 )
+                if not disable_triggers:
+                    base_ok = base_ok and fired
 
                 ok = ak.where(base_ok, ok, False)
 
@@ -1376,6 +1486,8 @@ def lepton_selection(
                     (ak.sum(mu_veto, axis=1) == 0) &
                     (ak.sum(ch_tau_mask, axis=1) == 3)
                 )
+                if not disable_triggers:
+                    base_ok = base_ok and fired
 
                 ok = ak.where(base_ok, ok, False)
 
@@ -1422,6 +1534,8 @@ def lepton_selection(
                     (ak.sum(e_veto, axis=1) == 0) &
                     (ak.sum(ch_tau_mask, axis=1) == 1)
                 )
+                if not disable_triggers:
+                    base_ok = base_ok and fired
 
                 ok = ak.where(base_ok, ok, False)
 
@@ -1469,6 +1583,8 @@ def lepton_selection(
                     (ak.sum(e_veto, axis=1) == 0) &
                     (ak.sum(ch_tau_mask, axis=1) == 2)
                 )
+                if not disable_triggers:
+                    base_ok = base_ok and fired
 
                 ok = ak.where(base_ok, ok, False)
 
@@ -1517,6 +1633,8 @@ def lepton_selection(
                     (ak.sum(e_veto, axis=1) == 0) &
                     (ak.sum(ch_tau_mask, axis=1) == 3)
                 )
+                if not disable_triggers:
+                    base_ok = base_ok and fired
 
                 ok = ak.where(base_ok, ok, False)
 
@@ -1564,6 +1682,8 @@ def lepton_selection(
                     (ak.sum(mu_veto, axis=1) == 1) &
                     (ak.sum(ch_tau_mask, axis=1) == 1)
                 )
+                if not disable_triggers:
+                    base_ok = base_ok and fired
 
                 ok = ak.where(base_ok, ok, False)
 
@@ -1632,6 +1752,8 @@ def lepton_selection(
                     (ak.sum(mu_veto, axis=1) == 2) &
                     (ak.sum(ch_tau_mask, axis=1) == 1)
                 )
+                if not disable_triggers:
+                    base_ok = base_ok and fired
 
                 ok = ak.where(base_ok, ok, False)
 
@@ -1700,6 +1822,8 @@ def lepton_selection(
                     (ak.sum(mu_veto, axis=1) == 1) &
                     (ak.sum(ch_tau_mask, axis=1) == 2)
                 )
+                if not disable_triggers:
+                    base_ok = base_ok and fired
 
                 ok = ak.where(base_ok, ok, False)
 
@@ -1768,6 +1892,8 @@ def lepton_selection(
                     (ak.sum(e_veto, axis=1) == 0) &
                     (ak.sum(ch_tau_mask, axis=1) == 4)
                 )
+                if not disable_triggers:
+                    base_ok = base_ok and fired
 
                 ok = ak.where(base_ok, ok, False)
 
@@ -1804,6 +1930,8 @@ def lepton_selection(
                     (ak.sum(mu_veto, axis=1) == 0) &
                     (ak.sum(ch_tau_mask, axis=1) <= 1)
                 )
+                if not disable_triggers:
+                    base_ok = base_ok and fired
 
                 ok = ak.where(base_ok, ok, False)
 
@@ -1841,6 +1969,8 @@ def lepton_selection(
                     (ak.sum(e_veto, axis=1) == 0) &
                     (ak.sum(ch_tau_mask, axis=1) <= 1)
                 )
+                if not disable_triggers:
+                    base_ok = base_ok and fired
 
                 ok = ak.where(base_ok, ok, False)
 
@@ -1879,6 +2009,8 @@ def lepton_selection(
                     (ak.sum(mu_veto, axis=1) == 1) &
                     (ak.sum(ch_tau_mask, axis=1) <= 1)
                 )
+                if not disable_triggers:
+                    base_ok = base_ok and fired
 
                 ok = ak.where(base_ok, ok, False)
 
@@ -1968,6 +2100,16 @@ def lepton_selection(
     sel_tightelectron_indices = sorted_indices_from_mask(sel_tightelectron_mask, events.Electron.pt, ascending=False)
     sel_tightmuon_indices = sorted_indices_from_mask(sel_tightmuon_mask, events.Muon.pt, ascending=False)
     sel_isotau_indices = sorted_indices_from_mask(sel_isotau_mask, tau_sorting_key, ascending=False)
+
+    # events = set_ak_column(events, "Electron", events.Electron[sel_electron_indices])
+    events = set_ak_column(events, "ElectronLoose", events.Electron[sel_looseelectron_indices])
+    events = set_ak_column(events, "ElectronTight", events.Electron[sel_tightelectron_indices])
+    # events = set_ak_column(events, "Muon", events.Muon[sel_muon_indices])
+    events = set_ak_column(events, "MuonLoose", events.Muon[sel_loosemuon_indices])
+    events = set_ak_column(events, "MuonTight", events.Muon[sel_tightmuon_indices])
+    # events = set_ak_column(events, "Tau", events.Tau[sel_tau_indices])
+    events = set_ak_column(events, "TauIso", events.Tau[sel_isotau_indices])
+    events = set_ak_column(events, "TauNoID", events.Tau[sel_noid_tau_indicies])
 
     return events, SelectionResult(
         steps={
